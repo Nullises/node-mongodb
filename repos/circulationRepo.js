@@ -86,7 +86,6 @@ function circulationRepo() {
   }
 
   function updateItem(id, newItem) {
-    console.log("newItem", newItem);
     return new Promise(async (resolve, reject) => {
       const client = new MongoClient(url);
       try {
@@ -108,7 +107,24 @@ function circulationRepo() {
     });
   }
 
-  return { loadData, get, getById, add, updateItem };
+  function remove(id) {
+    return new Promise(async (resolve, reject) => {
+      const client = new MongoClient(url);
+      try {
+        await client.connect();
+        const db = client.db(dbName);
+        const updatedItem = await db.collection("newspapers").deleteOne({
+          _id: id,
+        });
+        resolve(updatedItem.deletedCount > 0 ? "Deleted" : "Not Found");
+        client.close();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  return { loadData, get, getById, add, updateItem, remove };
 }
 
 module.exports = circulationRepo();
