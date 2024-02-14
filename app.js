@@ -28,16 +28,55 @@ async function main() {
       },
       3
     );
-    console.log(limitData);
+    //console.log(limitData);
+
+    const id = getData[5]._id.toString();
+    const byId = await circulationRepo.getById(id);
+    //assert.deepEqual(byId, getData[5]);
+    //console.log(byId);
+
+    const newItem = {
+      Newspaper: "El Universal",
+      "Daily Circulation, 2004": 2192,
+      "Daily Circulation, 2013": 1674,
+      "Change in Daily Circulation, 2004-2013": 100,
+      "Pulitzer Prize Winners and Finalists, 1990-2003": 0,
+      "Pulitzer Prize Winners and Finalists, 2004-2014": 0,
+      "Pulitzer Prize Winners and Finalists, 1990-2014": 0,
+    };
+    const addItem = await circulationRepo.add(newItem);
+    console.log("addItem", addItem);
+    //assert(addItem.insertedId);
+    //console.log("added", addItem);
+
+    const updatedItem = {
+      $set: {
+        Newspaper: "Últimas Noticias",
+        "Daily Circulation, 2004": 2192,
+        "Daily Circulation, 2013": 1674,
+        "Change in Daily Circulation, 2004-2013": -24,
+        "Pulitzer Prize Winners and Finalists, 1990-2003": 1,
+        "Pulitzer Prize Winners and Finalists, 2004-2014": 1,
+        "Pulitzer Prize Winners and Finalists, 1990-2014": 2,
+      },
+    };
+    const updateItem = await circulationRepo.updateItem(
+      addItem.insertedId,
+      updatedItem
+    );
+    console.log(updateItem);
+
+    //const checkUpdatedItem = await circulationRepo.getById(addItem._id)
+    //assert.equal(checkUpdatedItem.Newspaper, "Últimas Noticias");
   } catch (error) {
     console.log(error);
   } finally {
     //const admin = client.db(dbName).admin();
-    //await client.db(dbName).dropDatabase();
-    //client.close();
+    // await client.db(dbName).dropDatabase();
+    client.close();
     // console.log(await admin.serverStatus());
     //console.log(await admin.listDatabases());
-    console.log("results", results.insertedCount);
+    //console.log("results", results.insertedCount);
   }
 }
 

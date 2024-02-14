@@ -1,4 +1,4 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 
 function circulationRepo() {
   const url = "mongodb://127.0.0.1:27017";
@@ -54,7 +54,61 @@ function circulationRepo() {
       }
     });
   }
-  return { loadData, get };
+  function getById(id) {
+    return new Promise(async (resolve, reject) => {
+      const client = new MongoClient(url);
+      try {
+        await client.connect();
+        const db = client.db(dbName);
+        let item = await db
+          .collection("newspapers")
+          .findOne({ _id: new ObjectId(id) });
+        resolve(item);
+        client.close();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  function add(newItem) {
+    return new Promise(async (resolve, reject) => {
+      const client = new MongoClient(url);
+      try {
+        await client.connect();
+        const db = client.db(dbName);
+        const addedItem = await db.collection("newspapers").insertOne(newItem);
+        resolve(addedItem);
+        client.close();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  function updateItem(id, newItem) {
+    console.log("newItem", newItem);
+    return new Promise(async (resolve, reject) => {
+      const client = new MongoClient(url);
+      try {
+        await client.connect();
+        const db = client.db(dbName);
+        const options = { upsert: true };
+        const updatedItem = await db.collection("newspapers").updateOne(
+          {
+            _id: id,
+          },
+          newItem,
+          options
+        );
+        resolve(updatedItem);
+        client.close();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  return { loadData, get, getById, add, updateItem };
 }
 
 module.exports = circulationRepo();
